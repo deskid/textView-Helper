@@ -6,13 +6,16 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.github.texthelper.TextViewHelper;
+import com.github.logutils.DebugUtils;
+import com.github.texthelper.TextViewStyleHelper;
 
 public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        DebugUtils.setApplicationContext(getApplicationContext());
+
         setContentView(R.layout.activity_main);
         TextView tv = (TextView) findViewById(R.id.textView);
         TextView tv2 = (TextView) findViewById(R.id.textView2);
@@ -26,28 +29,28 @@ public class MainActivity extends AppCompatActivity {
 
         String str2 = "同意：《绑卡协议》，《用户协议》";
 
-        TextViewHelper.with(this)
+        TextViewStyleHelper.with(this)
                 .create(str)
                 .every("am")
-                .textColor(R.color.colorAccent)
+                .textColor(getResources().getColor(R.color.colorAccent))
 
                 .first("adipiscing")
-                .textColor(R.color.colorPrimaryDark)
+                .textColor(getResources().getColor(R.color.colorPrimaryDark))
                 .font("monospace")
                 .scaleSize(2)
 
                 .last("eu")
-                .textColor(R.color.colorPrimary)
+                .textColor(getResources().getColor(R.color.colorPrimary))
                 .size(24)
 
                 .between("In", "ut")
-                .textColor(R.color.mainText)
+                .textColor(getResources().getColor(R.color.mainText))
                 .into(tv);
 
-        TextViewHelper.with(this)
+        TextViewStyleHelper.with(this)
                 .create(str2)
                 .append("《绑卡协议》")
-                .textColor(R.color.colorPrimary)
+                .textColor(getResources().getColor(R.color.colorPrimary))
                 .onClick(new View.OnClickListener() {
                     @Override
                     public void onClick(final View v) {
@@ -56,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
                 })
                 .append("，")
                 .append("《用户协议》")
-                .textColor(R.color.colorAccent)
+                .textColor(getResources().getColor(R.color.colorAccent))
                 .onClick(new View.OnClickListener() {
                     @Override
                     public void onClick(final View v) {
