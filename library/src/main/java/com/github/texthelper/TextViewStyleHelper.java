@@ -2,12 +2,17 @@ package com.github.texthelper;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.support.annotation.ColorInt;
+import android.support.annotation.Dimension;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
@@ -16,6 +21,7 @@ import android.text.style.BackgroundColorSpan;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
+import android.text.style.ReplacementSpan;
 import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
 import android.text.style.SubscriptSpan;
@@ -29,6 +35,8 @@ import com.github.logutils.CheckUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.support.annotation.Dimension.DP;
 
 /**
  TextView tv = (TextView) findViewById(R.id.textView);
@@ -58,32 +66,37 @@ public class TextViewStyleHelper {
     private Context mContext;
     private SpannableStringBuilder mSpanBuilder;
 
+    @ColorInt
+    private int mTextColor;
+
+    @ColorInt
+    private int mBgColor;
+
+    private float mScale;
+
+    private void reset() {
+        mRanges.clear();
+        mTextColor = 0xffffffff;
+        mBgColor = 0xff707070;
+        mScale = 1f;
+    }
+
     private TextViewStyleHelper(final Context context) {
         mContext = context;
-    }
-
-    private TextViewStyleHelper(final Context context, final String text) {
-        mContext = context;
-        mText = text;
-    }
-
-    @Deprecated
-    public static TextViewStyleHelper with(Context context) {
-        return new TextViewStyleHelper(context);
     }
 
     public static TextViewStyleHelper with(Context context, String text) {
         return new TextViewStyleHelper(context).create(text);
     }
 
-    public TextViewStyleHelper create(String text) {
+    private TextViewStyleHelper create(String text) {
         mText = text;
         mSpanBuilder = new SpannableStringBuilder(text);
         return this;
     }
 
     public TextViewStyleHelper first(String target) {
-        mRanges.clear();
+        reset();
         int index = mText.indexOf(target);
         Range range = Range.create(index, index + target.length());
         if (checkRange("first", range)) {
@@ -93,7 +106,7 @@ public class TextViewStyleHelper {
     }
 
     public TextViewStyleHelper last(String target) {
-        mRanges.clear();
+        reset();
         int index = mText.lastIndexOf(target);
         Range range = Range.create(index, index + target.length());
         if (checkRange("last", range)) {
@@ -103,7 +116,7 @@ public class TextViewStyleHelper {
     }
 
     public TextViewStyleHelper every(String target) {
-        mRanges.clear();
+        reset();
         for (int index = mText.indexOf(target); index >= 0; index = mText.indexOf(target, index + 1)) {
             Range range = Range.create(index, index + target.length());
             if (checkRange("every", range)) {
@@ -117,7 +130,7 @@ public class TextViewStyleHelper {
         int oLength = mText.length();
         mText = mText.concat(target);
         mSpanBuilder.append(target);
-        mRanges.clear();
+        reset();
         Range range = Range.create(oLength, oLength + target.length());
         if (checkRange("append", range)) {
             mRanges.add(range);
@@ -126,7 +139,7 @@ public class TextViewStyleHelper {
     }
 
     public TextViewStyleHelper all() {
-        mRanges.clear();
+        reset();
         Range range = Range.create(0, mText.length());
         if (checkRange("all", range)) {
             mRanges.add(range);
@@ -136,7 +149,7 @@ public class TextViewStyleHelper {
 
     //[from, to)
     public TextViewStyleHelper range(int from, int to) {
-        mRanges.clear();
+        reset();
         Range range = Range.create(from, to);
         if (checkRange("range", range)) {
             mRanges.add(range);
@@ -145,7 +158,7 @@ public class TextViewStyleHelper {
     }
 
     public TextViewStyleHelper ranges(List<Range> ranges) {
-        mRanges.clear();
+        reset();
         for (Range range : ranges) {
             if (checkRange("ranges", range)) {
                 mRanges.add(range);
@@ -155,7 +168,7 @@ public class TextViewStyleHelper {
     }
 
     public TextViewStyleHelper between(String startText, String endText) {
-        mRanges.clear();
+        reset();
         int startIndex = mText.indexOf(startText) + startText.length();
         int endIndex = mText.lastIndexOf(endText);
         Range range = Range.create(startIndex, endIndex);
@@ -165,16 +178,17 @@ public class TextViewStyleHelper {
         return this;
     }
 
-    public TextViewStyleHelper size(int dp) {
+    public TextViewStyleHelper size(@Dimension(unit = DP) int dp) {
         for (Range range : mRanges) {
             mSpanBuilder.setSpan(new AbsoluteSizeSpan(dp, true), range.from, range.to, SPAN_MODE);
         }
         return this;
     }
 
-    public TextViewStyleHelper scaleSize(int proportion) {
+    public TextViewStyleHelper scale(float scale) {
+        mScale = scale;
         for (Range range : mRanges) {
-            mSpanBuilder.setSpan(new RelativeSizeSpan(proportion), range.from, range.to, SPAN_MODE);
+            mSpanBuilder.setSpan(new RelativeSizeSpan(scale), range.from, range.to, SPAN_MODE);
         }
         return this;
     }
@@ -215,6 +229,7 @@ public class TextViewStyleHelper {
     }
 
     public TextViewStyleHelper background(@ColorInt int colorInt) {
+        mBgColor = colorInt;
         for (Range range : mRanges) {
             mSpanBuilder.setSpan(new BackgroundColorSpan(colorInt), range.from, range.to, SPAN_MODE);
         }
@@ -222,6 +237,7 @@ public class TextViewStyleHelper {
     }
 
     public TextViewStyleHelper textColor(@ColorInt int colorInt) {
+        mTextColor = colorInt;
         for (Range range : mRanges) {
             mSpanBuilder.setSpan(new ForegroundColorSpan(colorInt), range.from, range.to, SPAN_MODE);
         }
@@ -261,6 +277,15 @@ public class TextViewStyleHelper {
 
             }, range.from, range.to, SPAN_MODE);
         }
+        return this;
+    }
+
+    public TextViewStyleHelper tag(boolean isRoundCorner) {
+        for (Range range : mRanges) {
+            mSpanBuilder.setSpan(new RelativeSizeSpan(mScale), range.from, range.to, Spanned.SPAN_COMPOSING);
+            mSpanBuilder.setSpan(new TextTagSpan(mBgColor, mTextColor, mScale, isRoundCorner), range.from, range.to, SPAN_MODE);
+        }
+
         return this;
     }
 
@@ -330,5 +355,51 @@ public class TextViewStyleHelper {
             return new Range(from, to);
         }
 
+    }
+
+    private static class TextTagSpan extends ReplacementSpan {
+        private boolean isRoundCorner = false;
+        private int bgColor = Color.GRAY;
+        private int textColor = Color.WHITE;
+        private float textSizeRatio = 1.0f;
+
+        TextTagSpan(int bgColor, int textColor, float textSizeRatio, boolean isRoundCorner) {
+            super();
+
+            this.bgColor = bgColor;
+            this.textColor = textColor;
+            this.textSizeRatio = textSizeRatio;
+            this.isRoundCorner = isRoundCorner;
+        }
+
+        @Override
+        public void draw(Canvas canvas, CharSequence text, int start, int end, float x, int top, int y, int bottom, Paint paint) {
+            float height = bottom - top;
+            float textHeight = height * textSizeRatio;
+            float minus = (height - textHeight) / 1.0f;
+            RectF rect = new RectF(x, top + minus, x + measureText(paint, text, start, end), bottom - minus);
+            paint.setColor(bgColor);
+
+            if (isRoundCorner) {
+                float radius = textHeight / 2.0f;
+                canvas.drawRoundRect(rect, radius, radius, paint);
+            } else {
+                canvas.drawRect(rect, paint);
+            }
+
+            paint.setColor(textColor);
+            Paint.FontMetricsInt fm = paint.getFontMetricsInt();
+            canvas.drawText(text, start, end,
+                    x, y - ((y + fm.ascent + y + fm.descent) / 2 - (bottom + top) / 2), paint);
+        }
+
+        @Override
+        public int getSize(Paint paint, CharSequence text, int start, int end, Paint.FontMetricsInt fm) {
+            return Math.round(paint.measureText(text, start, end));
+        }
+
+        private float measureText(Paint paint, CharSequence text, int start, int end) {
+            return paint.measureText(text, start, end);
+        }
     }
 }

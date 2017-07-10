@@ -33,9 +33,12 @@ TextViewHelper.with(this)
         .into(tv);
 ```
 
+![](./media/demo.png)
+
 ### todo
 
 - release to maven
 
 ### thanks
 - [SimpleText](https://github.com/jaychang0917/SimpleText)
+
