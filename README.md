@@ -12,25 +12,43 @@ String str = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. " +
                 "Vestibulum ultrices nec nulla in facilisis. Nunc a erat pellentesque, lacinia lectus ut, malesuada purus. " +
                 "Fusce a fringilla sem. Proin mattis eros eu pulvinar fringilla. In suscipit ut ligula at euismod.";
 
-TextViewHelper.with(this)
-        .create(str)
+TextViewStyleHelper.with(this, str)
+            .every("am")
+            .textColor(getColorCompat(R.color.colorAccent))
 
-        .every("am")
-        .textColor(R.color.colorAccent)
+            .first("adipiscing")
+            .textColor(getColorCompat(R.color.colorPrimaryDark))
+            .font("monospace")
+            .scale(1.1f)
 
-        .first("adipiscing")
-        .textColor(R.color.colorPrimaryDark)
-        .font("monospace")
-        .scaleSize(2)
+            .last("eu")
+            .textColor(getColorCompat(R.color.colorPrimary))
+            .size(24)
 
-        .last("eu")
-        .textColor(R.color.colorPrimary)
-        .size(24)
+            .last("Proin")
+            .bold()
 
-        .between("In", "ut")
-        .textColor(R.color.mainText)
-        
-        .into(tv);
+            .first("Maecenas")
+            .italic()
+
+            .first("facilisis")
+            .background(getColorCompat(R.color.colorPrimary))
+
+            .first("Vestibulum")
+            .strikethrough()
+
+            .first("fringilla")
+            .subscript()
+
+            .first("ligula")
+            .superscript()
+
+            .first("euismod")
+            .underline()
+
+            .between("In", "ut")
+            .textColor(getColorCompat(R.color.mainText))
+            .into(tv);
 ```
 
 ![](./media/demo.png)
