@@ -376,7 +376,7 @@ public class TextViewStyleHelper {
         public void draw(Canvas canvas, CharSequence text, int start, int end, float x, int top, int y, int bottom, Paint paint) {
             float height = bottom - top;
             float textHeight = height * textSizeRatio;
-            float minus = (height - textHeight) / 1.0f;
+            float minus = (height - textHeight) / 2.0f;
             RectF rect = new RectF(x, top + minus, x + measureText(paint, text, start, end), bottom - minus);
             paint.setColor(bgColor);
 
