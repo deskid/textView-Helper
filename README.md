@@ -1,6 +1,25 @@
+[![](https://jitpack.io/v/deskid/textView-Helper.svg)](https://jitpack.io/#deskid/textView-Helper)
+
 # textView-Helper
 
 ### Useage
+
+Step 1. Add jitpack in your root build.gradle :
+
+	allprojects {
+		repositories {
+			...
+			maven { url 'https://jitpack.io' }
+		}
+	}
+  
+Step 2. Add the dependency
+
+	dependencies {
+	    compile 'com.github.deskid:textView-Helper:v1.0.0'
+	}
+
+Step 3. happy coding
 
 ```java
 TextView tv = (TextView) findViewById(R.id.textView);
@@ -51,11 +70,10 @@ TextViewStyleHelper.with(this, str)
             .into(tv);
 ```
 
+### demo
+
 ![](./media/demo.png)
 
-### todo
-
-- release to maven
 
 ### thanks
 - [SimpleText](https://github.com/jaychang0917/SimpleText)
